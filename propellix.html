@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propellix — Enterprise Localization Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Urbanist:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+:root{
+  --ink:#03060E;--ink2:#06091B;--ink3:#0A0E20;
+  --gold:#C8A44A;--gold2:#E2BE6E;--gold-g:rgba(200,164,74,0.22);
+  --teal:#22D4D4;--teal-d:rgba(34,212,212,0.1);
+  --violet:#7855F4;
+  --text:#E8E3DC;--muted:#6A7A94;--faint:#2E3A52;
+  --border:rgba(200,164,74,0.08);--border-b:rgba(200,164,74,0.24);
+  --ff-d:'Cormorant Garamond',Georgia,serif;
+  --ff-b:'Urbanist','Helvetica Neue',sans-serif;
+  --ff-m:'Space Mono','Courier New',monospace;
+  --ez:cubic-bezier(0.22,1,0.36,1);
+}
+body{background:var(--ink);color:var(--text);font-family:var(--ff-b);overflow-x:hidden;cursor:none}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:rgba(200,164,74,0.15);border-radius:2px}
+::selection{background:var(--gold);color:var(--ink)}
+
+/* CURSOR */
+#cdot{position:fixed;width:7px;height:7px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s,background .2s;will-change:transform}
+#cring{position:fixed;width:32px;height:32px;border:1px solid rgba(200,164,74,0.45);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s var(--ez),height .2s var(--ez),border-color .2s;will-change:transform}
+body.hov #cdot{width:12px;height:12px;background:var(--teal)}
+body.hov #cring{width:46px;height:46px;border-color:rgba(34,212,212,0.4)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.5rem 6%;transition:background .5s,border-color .5s,padding .3s;border-bottom:1px solid transparent}
+nav.solid{background:rgba(3,6,14,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom-color:var(--border);padding:1rem 6%}
+.nav-logo{font-family:var(--ff-d);font-size:1.55rem;font-weight:600;letter-spacing:.04em;color:var(--text);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:2.4rem;list-style:none}
+.nav-links a{font-size:.74rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .25s}
+.nav-links a:hover{color:var(--text)}
+.nav-btn{font-family:var(--ff-b);font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);background:transparent;padding:.52rem 1.4rem;cursor:pointer;transition:background .25s,color .25s;text-decoration:none;display:inline-block}
+.nav-btn:hover{background:var(--gold);color:var(--ink)}
+
+/* HERO */
+#hero{min-height:100vh;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:9rem 6% 5rem;overflow:hidden}
+.bg-orb{position:absolute;border-radius:50%;pointer-events:none;will-change:transform}
+.orb-g{width:800px;height:800px;background:radial-gradient(circle,rgba(200,164,74,.16) 0%,transparent 70%);top:-320px;right:-220px;animation:orbp 12s ease-in-out infinite}
+.orb-t{width:700px;height:700px;background:radial-gradient(circle,rgba(34,212,212,.1) 0%,transparent 70%);bottom:-240px;left:-240px;animation:orbp 15s ease-in-out infinite 5s}
+.orb-v{width:460px;height:460px;background:radial-gradient(circle,rgba(120,85,244,.08) 0%,transparent 70%);top:42%;left:36%;animation:orbp 20s ease-in-out infinite 9s}
+@keyframes orbp{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.15);opacity:1.1}}
+#net-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
+#scripts-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.sc{position:absolute;pointer-events:none;user-select:none;animation:scr linear infinite;opacity:0}
+@keyframes scr{0%{transform:translateY(0) rotate(0deg);opacity:0}12%{opacity:var(--op,.06)}88%{opacity:var(--op,.06)}100%{transform:translateY(-120vh) rotate(var(--rot,180deg));opacity:0}}
+.hero-inner{position:relative;z-index:2;max-width:920px;margin:0 auto}
+.h-eyebrow{font-family:var(--ff-m);font-size:.68rem;color:var(--teal);letter-spacing:.22em;text-transform:uppercase;margin-bottom:1.9rem;display:flex;align-items:center;justify-content:center;gap:.9rem;opacity:0;animation:rise .9s var(--ez) .3s forwards}
+.h-eyebrow::before,.h-eyebrow::after{content:'';width:36px;height:1px;background:linear-gradient(90deg,transparent,var(--teal))}
+.h-eyebrow::after{transform:scaleX(-1)}
+.h-headline{font-family:var(--ff-d);font-size:clamp(3.6rem,8vw,7.4rem);font-weight:400;line-height:1.04;letter-spacing:-.01em;color:var(--text);margin-bottom:.9rem;opacity:0;animation:rise 1s var(--ez) .5s forwards}
+.h-headline em{font-style:italic;color:var(--gold)}
+.lang-wrap{height:2.6rem;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:2rem;opacity:0;animation:rise .9s var(--ez) .7s forwards}
+#lang-t{font-family:var(--ff-d);font-size:clamp(1rem,2.1vw,1.52rem);font-weight:300;font-style:italic;color:var(--muted);transition:opacity .3s ease,transform .3s ease;display:block}
+#lang-t.fade{opacity:0;transform:translateY(8px)}
+.h-sub{font-size:1rem;color:var(--muted);line-height:1.78;max-width:560px;margin:0 auto 2.6rem;opacity:0;animation:rise .9s var(--ez) .9s forwards}
+.h-ctas{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:rise .9s var(--ez) 1.1s forwards}
+.btn-gold{background:var(--gold);color:var(--ink);border:none;padding:.88rem 2.2rem;font-family:var(--ff-b);font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .25s,transform .2s,box-shadow .25s;text-decoration:none;display:inline-block}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 14px 40px rgba(200,164,74,.3)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid rgba(232,227,220,.16);padding:.88rem 2.2rem;font-family:var(--ff-b);font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:border-color .25s,transform .2s;text-decoration:none;display:inline-block}
+.btn-ghost:hover{border-color:rgba(232,227,220,.42);transform:translateY(-2px)}
+.hero-stats{position:relative;z-index:2;display:flex;gap:3.5rem;justify-content:center;margin-top:5rem;padding-top:2.5rem;border-top:1px solid var(--border);opacity:0;animation:rise .9s var(--ez) 1.4s forwards}
+.h-sn{font-family:var(--ff-m);font-size:1.55rem;color:var(--gold);line-height:1;margin-bottom:.25rem}
+.h-sn sub{font-size:.85rem;color:var(--teal)}
+.h-sl{font-size:.7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* MARQUEE */
+.mq-wrap{background:var(--ink2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.9rem 0;overflow:hidden}
+.mq-track{display:flex;width:max-content;animation:mqgo 38s linear infinite}
+.mq-track:hover{animation-play-state:paused}
+@keyframes mqgo{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mq-set{display:flex;flex-shrink:0}
+.mq-item{white-space:nowrap;padding:0 2rem;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:2rem}
+.mq-item::after{content:'◈';color:var(--gold);font-size:.48rem}
+
+/* SECTION COMMON */
+section{padding:7rem 8%;position:relative}
+.s-lbl{font-family:var(--ff-m);font-size:.65rem;color:var(--teal);letter-spacing:.22em;text-transform:uppercase;margin-bottom:1.1rem;display:flex;align-items:center;gap:.75rem}
+.s-lbl::before{content:'';display:inline-block;width:26px;height:1px;background:var(--teal)}
+.s-ttl{font-family:var(--ff-d);font-size:clamp(2.3rem,4.3vw,3.8rem);font-weight:400;line-height:1.1;margin-bottom:1.2rem}
+.s-ttl em{color:var(--gold);font-style:italic}
+.s-body{font-size:.97rem;color:var(--muted);line-height:1.78;max-width:550px}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .75s var(--ez),transform .75s var(--ez)}
+.rv.in{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.18s}.d3{transition-delay:.3s}.d4{transition-delay:.42s}.d5{transition-delay:.54s}
+
+/* PROBLEM */
+#problem{background:var(--ink2)}
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:4rem;border:1px solid var(--border)}
+.prob-card{padding:3rem 2.5rem;border-right:1px solid var(--border);position:relative;overflow:hidden;transition:background .35s}
+.prob-card:last-child{border-right:none}
+.prob-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--teal),transparent);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ez)}
+.prob-card:hover::before{transform:scaleX(1)}
+.prob-card:hover{background:rgba(200,164,74,.025)}
+.prob-num{font-family:var(--ff-d);font-size:5rem;font-weight:300;line-height:1;color:var(--gold);margin-bottom:.5rem;display:flex;align-items:baseline;gap:.14rem}
+.prob-num .unit{font-family:var(--ff-m);font-size:1.75rem;color:var(--teal)}
+.prob-name{font-size:.97rem;font-weight:700;color:var(--text);margin-bottom:.5rem}
+.prob-desc{font-size:.83rem;color:var(--muted);line-height:1.72}
+
+/* FEATURES */
+.feat-hdr{max-width:680px;margin-bottom:4.5rem}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;background:var(--border)}
+.feat-card{background:var(--ink);padding:3.5rem;position:relative;overflow:hidden;transition:background .4s}
+.feat-card:hover{background:var(--ink2)}
+.feat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,164,74,.05) 0%,transparent 55%);opacity:0;transition:opacity .4s}
+.feat-card:hover::before{opacity:1}
+.feat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,var(--gold),var(--teal),transparent);transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ez)}
+.feat-card:hover::after{transform:scaleX(1)}
+.feat-num{font-family:var(--ff-m);font-size:.61rem;color:var(--gold);letter-spacing:.16em;margin-bottom:1.2rem;opacity:.7}
+.feat-ico{width:42px;height:42px;margin-bottom:1.8rem;color:var(--teal)}
+.feat-ico svg{width:100%;height:100%}
+.feat-ttl{font-family:var(--ff-d);font-size:1.82rem;font-weight:500;line-height:1.18;color:var(--text);margin-bottom:.9rem}
+.feat-body{font-size:.85rem;color:var(--muted);line-height:1.78;margin-bottom:1.8rem}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:.52rem}
+.feat-list li{font-size:.78rem;color:var(--faint);display:flex;align-items:flex-start;gap:.58rem;transition:color .25s}
+.feat-card:hover .feat-list li{color:var(--muted)}
+.feat-list li::before{content:'→';color:var(--gold);font-size:.7rem;flex-shrink:0;margin-top:1px}
+
+/* WORKFLOW */
+#workflow{background:var(--ink2)}
+.pipe-wrap{margin-top:4.5rem;position:relative}
+.pipe-track{position:absolute;top:27px;left:4%;right:4%;height:1px;background:var(--border);z-index:0;overflow:hidden}
+.pipe-prog{height:1px;background:linear-gradient(90deg,var(--gold),var(--teal));animation:ppfill 4.5s ease-in-out infinite}
+@keyframes ppfill{0%{width:0;opacity:1}65%{width:100%;opacity:1}100%{width:100%;opacity:0}}
+.pipe-steps{display:flex;justify-content:space-between;position:relative;z-index:1}
+.pipe-step{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1}
+.pipe-dot{width:54px;height:54px;border-radius:50%;background:var(--ink2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;position:relative;transition:border-color .4s,box-shadow .4s}
+.pipe-dot svg{width:20px;height:20px;color:var(--muted);transition:color .3s}
+.pipe-step:hover .pipe-dot{border-color:var(--gold);box-shadow:0 0 20px rgba(200,164,74,.28)}
+.pipe-step:hover .pipe-dot svg{color:var(--gold)}
+.pdn{font-family:var(--ff-m);font-size:.56rem;color:var(--gold);position:absolute;top:-7px;right:-4px;background:var(--ink2);padding:1px 3px;opacity:.8;border:1px solid var(--border)}
+.pipe-ttl{font-size:.76rem;font-weight:700;color:var(--text);margin-bottom:.38rem;padding:0 .35rem}
+.pipe-dsc{font-size:.68rem;color:var(--muted);line-height:1.52;max-width:105px}
+
+/* VERTICALS */
+.vert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem}
+.vert-card{background:var(--ink2);border:1px solid var(--border);padding:2.8rem;position:relative;overflow:hidden;transition:border-color .35s,transform .35s var(--ez)}
+.vert-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--teal));transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ez)}
+.vert-card:hover::after{transform:scaleX(1)}
+.vert-card:hover{border-color:rgba(200,164,74,.2);transform:translateY(-5px)}
+.vert-tag{font-family:var(--ff-m);font-size:.6rem;color:var(--teal);letter-spacing:.16em;text-transform:uppercase;margin-bottom:1.15rem}
+.vert-nm{font-family:var(--ff-d);font-size:1.72rem;font-weight:500;margin-bottom:.75rem;line-height:1.2}
+.vert-dsc{font-size:.83rem;color:var(--muted);line-height:1.75;margin-bottom:1.5rem}
+.vert-prf{font-family:var(--ff-m);font-size:.68rem;color:var(--gold);border-top:1px solid var(--border);padding-top:1.2rem;line-height:1.55}
+
+/* STATS BAND */
+#stats-band{background:var(--ink2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5rem 8%}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+.stat-cell{background:var(--ink2);padding:3rem 2.5rem;text-align:center;position:relative;transition:background .3s}
+.stat-cell:hover{background:var(--ink3)}
+.stat-n{font-family:var(--ff-d);font-size:4.5rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:.5rem}
+.stat-n sub{font-size:1.8rem;color:var(--teal);font-style:normal}
+.stat-l{font-size:.73rem;font-weight:700;color:var(--text);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem}
+.stat-d{font-size:.78rem;color:var(--muted);line-height:1.55}
+
+/* PRICING */
+#pricing{background:var(--ink)}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem;align-items:start}
+.price-card{background:var(--ink2);border:1px solid var(--border);padding:2.6rem;position:relative;transition:border-color .3s,transform .3s}
+.price-card:hover{border-color:rgba(200,164,74,.2);transform:translateY(-4px)}
+.price-card.feat{border-color:var(--gold);background:rgba(200,164,74,.035)}
+.price-card.feat::before{content:'MOST POPULAR';position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:var(--ff-m);font-size:.56rem;font-weight:700;letter-spacing:.16em;padding:3px 10px;white-space:nowrap}
+.p-tier{font-family:var(--ff-m);font-size:.64rem;color:var(--teal);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem}
+.p-amt{font-family:var(--ff-d);font-size:3rem;font-weight:300;line-height:1;color:var(--text);margin-bottom:.25rem}
+.p-amt sup{font-size:1.2rem;vertical-align:.4em}
+.p-per{font-size:.78rem;color:var(--muted);margin-bottom:2rem}
+.p-div{height:1px;background:var(--border);margin-bottom:1.8rem}
+.p-feats{list-style:none;display:flex;flex-direction:column;gap:.72rem;margin-bottom:2rem}
+.p-feats li{font-size:.81rem;color:var(--muted);display:flex;align-items:flex-start;gap:.58rem}
+.chk{color:var(--gold);flex-shrink:0;margin-top:1px}
+.p-btn{display:block;text-align:center;padding:.78rem;font-family:var(--ff-b);font-size:.76rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;text-decoration:none;transition:background .25s,color .25s,border-color .25s;cursor:pointer}
+.p-btn-g{background:transparent;color:var(--gold);border:1px solid var(--border-b)}
+.p-btn-g:hover{background:rgba(200,164,74,.08);border-color:var(--gold)}
+.p-btn-s{background:var(--gold);color:var(--ink);border:1px solid var(--gold)}
+.p-btn-s:hover{background:var(--gold2)}
+
+/* AI LAYER */
+#ai-layer{background:var(--ink2)}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.ai-visual{position:relative;height:420px}
+.ai-canvas{width:100%;height:100%}
+
+/* FOUNDER */
+#founder{display:grid;grid-template-columns:1fr 1fr;gap:7rem;align-items:center;padding:7rem 8%}
+.f-lbl-wrap{margin-bottom:.5rem}
+.f-qt{font-family:var(--ff-d);font-size:1.65rem;font-weight:300;font-style:italic;line-height:1.55;color:var(--text);margin-bottom:2.5rem;position:relative;padding-left:1.5rem}
+.f-qt::before{content:'\201C';font-size:5rem;color:var(--gold);line-height:0;position:absolute;top:.75rem;left:-1rem;font-style:normal;opacity:.5}
+.f-nm{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.2rem}
+.f-role{font-size:.83rem;color:var(--muted);margin-bottom:2rem}
+.f-div{width:38px;height:1.5px;background:var(--gold);margin-bottom:2rem}
+.f-badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem}
+.f-badge-t{font-family:var(--ff-m);font-size:.6rem;color:var(--muted);border:1px solid var(--border);padding:.3rem .75rem;letter-spacing:.1em;text-transform:uppercase}
+.f-vis{position:relative;height:420px}
+.f-shadow{position:absolute;top:22px;left:22px;right:-22px;bottom:-22px;border:1px solid var(--border)}
+.f-frame{position:absolute;top:0;left:0;right:0;bottom:0;border:1px solid var(--border-b);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.f-inits{font-family:var(--ff-d);font-size:9rem;font-weight:300;color:rgba(200,164,74,.06);letter-spacing:.12em;user-select:none;position:absolute}
+.f-name-card{position:absolute;bottom:-14px;right:24px;background:var(--gold);color:var(--ink);font-family:var(--ff-m);font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:.48rem 1.2rem}
+.f-corner{position:absolute;width:20px;height:20px;border-color:var(--gold);border-style:solid}
+.f-tl{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.f-tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.f-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+.f-br{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.f-orbit{position:absolute;inset:0;pointer-events:none}
+#f-canvas{width:100%;height:100%}
+
+/* CONNECTORS */
+.conn-wrap{margin-top:3rem}
+.conn-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.75rem}
+.conn-badge{display:flex;align-items:center;justify-content:center;height:42px;border:1px solid var(--border);font-size:.71rem;font-weight:600;color:var(--muted);letter-spacing:.04em;transition:border-color .25s,color .25s,background .25s;cursor:default}
+.conn-badge:hover{border-color:var(--border-b);color:var(--text);background:rgba(200,164,74,.03)}
+
+/* TECH TAGS */
+.tech-strip{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.8rem}
+.tech-tag{font-family:var(--ff-m);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .8rem;border:1px solid var(--border-b);color:var(--muted)}
+
+/* CTA */
+#cta-s{text-align:center;padding:9rem 8%;position:relative;overflow:hidden;background:var(--ink2)}
+#cta-s::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(200,164,74,.055) 0%,transparent 65%);pointer-events:none}
+.cta-ttl{font-family:var(--ff-d);font-size:clamp(2.8rem,5.5vw,5rem);font-weight:400;line-height:1.07;margin-bottom:1.5rem}
+.cta-ttl em{color:var(--gold);font-style:italic}
+.cta-sub{font-size:1rem;color:var(--muted);line-height:1.78;max-width:480px;margin:0 auto 3rem}
+.cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.cta-note{margin-top:1.5rem;font-size:.74rem;color:var(--faint);font-family:var(--ff-m)}
+
+/* FOOTER */
+footer{background:var(--ink);border-top:1px solid var(--border);padding:4.5rem 8% 2rem}
+.ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;margin-bottom:3.5rem}
+.ft-brand{font-family:var(--ff-d);font-size:1.7rem;font-weight:600;margin-bottom:.75rem;letter-spacing:.04em}
+.ft-brand span{color:var(--gold)}
+.ft-tag{font-size:.82rem;color:var(--muted);line-height:1.72;max-width:250px;margin-bottom:1.5rem}
+.ft-col-lbl{font-family:var(--ff-m);font-size:.6rem;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:1.15rem}
+.ft-links{list-style:none;display:flex;flex-direction:column;gap:.62rem}
+.ft-links a{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .25s}
+.ft-links a:hover{color:var(--text)}
+.ft-bot{border-top:1px solid var(--border);padding-top:1.8rem;display:flex;justify-content:space-between;align-items:center}
+.ft-copy{font-size:.74rem;color:var(--faint)}
+.ft-copy em{color:var(--gold);font-style:normal}
+.ft-mono{font-family:var(--ff-m);font-size:.64rem;color:var(--faint);letter-spacing:.09em}
+
+/* ORN DIVIDER */
+.orn{text-align:center;border:none;height:1px;background:var(--border);margin:0;position:relative;overflow:visible}
+.orn::after{content:'◈';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.62rem;color:var(--gold);background:inherit;padding:0 .5rem}
+.orn-ink{background:var(--ink)}
+.orn-ink2{background:var(--ink2)}
+.orn-ink::after{background:var(--ink)}
+.orn-ink2::after{background:var(--ink2)}
+
+/* QA TABLE */
+.qa-table{width:100%;margin-top:2.5rem;border-collapse:collapse}
+.qa-table th{font-family:var(--ff-m);font-size:.62rem;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;padding:.75rem 1.2rem;border-bottom:1px solid var(--border);text-align:left}
+.qa-table td{font-size:.82rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+.qa-table tr:hover td{color:var(--text);background:rgba(200,164,74,.022)}
+.qa-cat{color:var(--text);font-weight:600}
+.tq-badge{font-family:var(--ff-m);font-size:.58rem;padding:.22rem .6rem;letter-spacing:.1em;text-transform:uppercase}
+.tq-a{background:rgba(34,212,212,.1);color:var(--teal);border:1px solid rgba(34,212,212,.18)}
+.tq-b{background:rgba(200,164,74,.1);color:var(--gold);border:1px solid rgba(200,164,74,.18)}
+</style>
+</head>
+<body>
+
+<div id="cdot"></div>
+<div id="cring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Propell<span>ix</span></a>
+  <ul class="nav-links">
+    <li><a href="#features">Product</a></li>
+    <li><a href="#workflow">How It Works</a></li>
+    <li><a href="#verticals">Industries</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#founder">Company</a></li>
+  </ul>
+  <a href="#cta-s" class="nav-btn">Get Early Access</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="bg-orb orb-g"></div>
+  <div class="bg-orb orb-t"></div>
+  <div class="bg-orb orb-v"></div>
+  <canvas id="net-canvas"></canvas>
+  <div id="scripts-bg"></div>
+
+  <div class="hero-inner">
+    <p class="h-eyebrow">AI-Native Enterprise Localization Intelligence</p>
+    <h1 class="h-headline">Every Word.<br><em>Every World.</em></h1>
+    <div class="lang-wrap"><span id="lang-t">Enterprise Localization Intelligence</span></div>
+    <p class="h-sub">Propellix gives enterprise teams one unified AI-native layer for translation memory, glossary governance, and multilingual QA — replacing fragmented vendor stacks with one intelligent system.</p>
+    <div class="h-ctas">
+      <a href="#cta-s" class="btn-gold">Start Free Trial</a>
+      <a href="#features" class="btn-ghost">See the Platform →</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div><div class="h-sn">50<sub>+</sub></div><div class="h-sl">Language Pairs</div></div>
+    <div><div class="h-sn">99<sub>%</sub></div><div class="h-sl">Quality Score</div></div>
+    <div><div class="h-sn">12<sub>hr</sub></div><div class="h-sl">Avg Delivery</div></div>
+    <div><div class="h-sn">40<sub>%</sub></div><div class="h-sl">Cost Reduction</div></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq-wrap">
+  <div class="mq-track">
+    <div class="mq-set" id="mq-src">
+      <span class="mq-item">Neural Translation Memory</span>
+      <span class="mq-item">Glossary Governance Engine</span>
+      <span class="mq-item">Multilingual QA at Scale</span>
+      <span class="mq-item">50+ Language Pairs</span>
+      <span class="mq-item">Workflow Orchestration</span>
+      <span class="mq-item">LSP Marketplace</span>
+      <span class="mq-item">SOC 2 Type II Compliant</span>
+      <span class="mq-item">Real-time Collaboration</span>
+      <span class="mq-item">Domain Fine-tuning</span>
+      <span class="mq-item">ISO 17100 Compliant</span>
+      <span class="mq-item">Propellix Quality Score</span>
+      <span class="mq-item">Cost Intelligence</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="rv">
+    <div class="s-lbl">The Problem</div>
+    <h2 class="s-ttl">Enterprise localization<br>is <em>fundamentally broken.</em></h2>
+  </div>
+  <div class="prob-grid rv d2">
+    <div class="prob-card">
+      <div class="prob-num"><span>73</span><span style="font-family:var(--ff-m);font-size:2rem;color:var(--teal)">%</span></div>
+      <p class="prob-name">of enterprises run 4+ disconnected localization tools</p>
+      <p class="prob-desc">TMS, CAT tool, QA checker, vendor spreadsheet, Slack threads. None communicate. Version conflicts are endemic. Projects slip on coordination, not translation quality.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num"><span style="font-family:var(--ff-m);font-size:2rem;color:var(--teal)">$</span><span>2.1M</span></div>
+      <p class="prob-name">average annual waste on localization rework per enterprise</p>
+      <p class="prob-desc">Catching a translation error at typesetting or after print costs 4–6× more than upstream. Propellix catches everything before any file leaves the platform.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num"><span>3</span><span class="unit">wk</span></div>
+      <p class="prob-name">average enterprise project delivery — reduced to 12 hours</p>
+      <p class="prob-desc">Automated routing, QA gates, and Neural TM leverage compound with every project. Customers go from 3-week cycles to overnight delivery within 60 days of onboarding.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="orn orn-ink2">
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="feat-hdr rv">
+    <div class="s-lbl">The Platform</div>
+    <h2 class="s-ttl">Four pillars.<br><em>One intelligence.</em></h2>
+    <p class="s-body">Every enterprise localization problem — fragmented memory, terminology chaos, manual QA, unpredictable costs — solved in one unified system that learns with every project.</p>
+  </div>
+
+  <div class="feat-grid rv d2">
+    <div class="feat-card">
+      <div class="feat-num">01 · Neural Translation Memory</div>
+      <div class="feat-ico">
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="22" r="5"/><circle cx="36" cy="8" r="5"/><circle cx="36" cy="36" r="5"/><circle cx="22" cy="22" r="4" stroke-dasharray="2.5 2"/>
+          <line x1="13" y1="20" x2="18.5" y2="21.2"/><line x1="13" y1="24" x2="18.5" y2="22.8"/>
+          <line x1="25.5" y1="19.5" x2="31.2" y2="11"/><line x1="25.5" y1="24.5" x2="31.2" y2="33"/>
+          <circle cx="22" cy="22" r="1.3" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <h3 class="feat-ttl">TM that matches by meaning, not characters.</h3>
+      <p class="feat-body">Every confirmed segment is embedded as a semantic vector. New content finds matches by meaning — not string similarity — surfacing 30–45% more TM leverage than legacy systems, reducing every project's cost before it starts.</p>
+      <ul class="feat-list">
+        <li>Cosine similarity across multilingual embeddings (LaBSE-based)</li>
+        <li>Domain-partitioned: Legal TM never bleeds into Marketing TM</li>
+        <li>Self-improving: accepts/rejects fine-tune thresholds over time</li>
+        <li>Full cost estimate with TM leverage prediction before any word is sent</li>
+      </ul>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">02 · Glossary Governance Engine</div>
+      <div class="feat-ico">
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="6" width="32" height="32" rx="3.5"/><line x1="6" y1="15" x2="38" y2="15"/><line x1="18" y1="15" x2="18" y2="38"/>
+          <circle cx="29" cy="27" r="4.5"/><line x1="32.5" y1="30.5" x2="36" y2="34"/>
+          <circle cx="11" cy="22.5" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="11" cy="28" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="11" cy="33.5" r="1.2" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <h3 class="feat-ttl">Your terminology, enforced everywhere.</h3>
+      <p class="feat-body">A living terminology operating system with multi-source ingestion, approval workflows, and bidirectional enforcement — in the editor as you type, and as a hard delivery gate before any file leaves the platform.</p>
+      <ul class="feat-list">
+        <li>Approved / Forbidden / Deprecated statuses with approval chains</li>
+        <li>Context-aware: "bank" → Banque (FR finance) vs Berge (FR geography)</li>
+        <li>Hard block on forbidden terms — auto-reject with structured error report</li>
+        <li>TBX, CSV, Excel, SDLTB; memoQ and Trados sync</li>
+      </ul>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">03 · Multilingual QA Engine</div>
+      <div class="feat-ico">
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 4L40 14V30L22 40L4 30V14Z"/>
+          <path d="M13 22L19 28L31 16" stroke-width="1.6"/>
+          <circle cx="22" cy="22" r="2" fill="var(--teal)" stroke="none" opacity=".7"/>
+        </svg>
+      </div>
+      <h3 class="feat-ttl">Catch every error before it ships.</h3>
+      <p class="feat-body">14 automated QA check categories run before human review. Every delivery gets a Propellix Quality Score. Below your threshold, the file is auto-rejected with a structured vendor report — zero manual QA bottleneck.</p>
+      <ul class="feat-list">
+        <li>Terminology, consistency, formatting, length, MT artifact detection</li>
+        <li>LLM-based fluency scoring — catches literal and awkward output</li>
+        <li>Back-translation QA for FDA/EMA regulatory submissions</li>
+        <li>Cultural flag detection for locale-specific sensitivities</li>
+      </ul>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">04 · Localization Workflow Orchestrator</div>
+      <div class="feat-ico">
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="8" width="13" height="9" rx="2.5"/><rect x="29" y="8" width="13" height="9" rx="2.5"/>
+          <rect x="15.5" y="27" width="13" height="9" rx="2.5"/>
+          <line x1="15" y1="12.5" x2="29" y2="12.5"/>
+          <line x1="8.5" y1="17" x2="22" y2="27"/><line x1="35.5" y1="17" x2="22" y2="27"/>
+        </svg>
+      </div>
+      <h3 class="feat-ttl">Content detected to delivery. Automated.</h3>
+      <p class="feat-body">Native connectors to your CMS, code repos, design tools, and support platforms. An AI routing engine decides per-segment whether to use MT-only, MTPE, or human translation based on risk, deadline, and budget.</p>
+      <ul class="feat-list">
+        <li>GitHub, Figma, Contentful, Zendesk, HubSpot, Shopify — 20+ connectors</li>
+        <li>Durable execution via Temporal.io for multi-week enterprise workflows</li>
+        <li>Real-time collaborative editor with CRDT conflict resolution (Yjs)</li>
+        <li>Vendor performance dashboard — PQS-based auto-rejection enforced</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Connector ecosystem -->
+  <div class="conn-wrap rv d3">
+    <p class="s-lbl" style="margin-bottom:1rem">Connector Ecosystem · 20+ Native Integrations</p>
+    <div class="conn-grid">
+      <div class="conn-badge">GitHub</div><div class="conn-badge">Figma</div>
+      <div class="conn-badge">Contentful</div><div class="conn-badge">Zendesk</div>
+      <div class="conn-badge">Shopify</div><div class="conn-badge">HubSpot</div>
+      <div class="conn-badge">Salesforce</div><div class="conn-badge">Strapi</div>
+      <div class="conn-badge">Drupal</div><div class="conn-badge">WordPress</div>
+      <div class="conn-badge">Intercom</div><div class="conn-badge">GitLab</div>
+    </div>
+  </div>
+</section>
+
+<hr class="orn orn-ink">
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="rv">
+    <div class="s-lbl">How It Works</div>
+    <h2 class="s-ttl">Detect. Route. Deliver.<br><em>Repeat. Improve.</em></h2>
+    <p class="s-body" style="margin-bottom:0">Every localization workflow from source change to delivery, automated and improving with every run.</p>
+  </div>
+  <div class="pipe-wrap rv d2">
+    <div class="pipe-track"><div class="pipe-prog"></div></div>
+    <div class="pipe-steps">
+      <div class="pipe-step">
+        <div class="pipe-dot">
+          <span class="pdn">01</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><line x1="10" y1="6" x2="10" y2="10"/><line x1="10" y1="10" x2="13" y2="13"/></svg>
+        </div>
+        <p class="pipe-ttl">Change Detected</p>
+        <p class="pipe-dsc">Connector picks up source file update automatically</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-dot">
+          <span class="pdn">02</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 10h14M3 10l5-5M3 10l5 5"/><circle cx="14" cy="10" r="3"/></svg>
+        </div>
+        <p class="pipe-ttl">Source Analysis</p>
+        <p class="pipe-dsc">TM leverage, word count & cost predicted</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-dot">
+          <span class="pdn">03</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M10 3v14M3 10h14"/><circle cx="10" cy="10" r="3"/></svg>
+        </div>
+        <p class="pipe-ttl">AI Routing</p>
+        <p class="pipe-dsc">MT-only / MTPE / Human assigned per segment</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-dot">
+          <span class="pdn">04</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="3" y="5" width="14" height="10" rx="2"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="7" y1="9" x2="7" y2="15"/></svg>
+        </div>
+        <p class="pipe-ttl">Translation</p>
+        <p class="pipe-dsc">Linguists work in real-time collaborative editor</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-dot">
+          <span class="pdn">05</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 10l4 4 8-8"/><circle cx="10" cy="10" r="8"/></svg>
+        </div>
+        <p class="pipe-ttl">Auto QA Gate</p>
+        <p class="pipe-dsc">MQE runs all 14 checks, PQS scored</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-dot">
+          <span class="pdn">06</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 17l4-4 3 3 7-13"/></svg>
+        </div>
+        <p class="pipe-ttl">Delivery</p>
+        <p class="pipe-dsc">Pushed back to CMS, repo or design tool</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-dot">
+          <span class="pdn">07</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M10 3 C5 3 3 7 3 10 C3 14 6.5 17 10 17 C13.5 17 17 14 17 10"/><path d="M13 3 L17 3 L17 7"/></svg>
+        </div>
+        <p class="pipe-ttl">TM Updated</p>
+        <p class="pipe-dsc">Memory learns — next project costs less</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- QA checks table -->
+  <div style="margin-top:5rem" class="rv d3">
+    <p class="s-lbl">14 QA Check Categories</p>
+    <table class="qa-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>What It Catches</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="qa-cat">Terminology</td><td>Missing approved terms, usage of forbidden terms</td><td><span class="tq-badge tq-b">Hard Block</span></td></tr>
+        <tr><td class="qa-cat">Consistency</td><td>Same source segment translated differently across the project</td><td><span class="tq-badge tq-a">Auto Flag</span></td></tr>
+        <tr><td class="qa-cat">Formatting</td><td>Broken HTML tags, missing/extra placeholders like {username}</td><td><span class="tq-badge tq-b">Hard Block</span></td></tr>
+        <tr><td class="qa-cat">String Length</td><td>Target 40%+ longer than source — UI overflow risk</td><td><span class="tq-badge tq-a">Auto Flag</span></td></tr>
+        <tr><td class="qa-cat">Numbers & Dates</td><td>"January 5" not localized to "5 janvier" for FR-FR</td><td><span class="tq-badge tq-a">Auto Flag</span></td></tr>
+        <tr><td class="qa-cat">MT Artifacts</td><td>AI-translated content that was not post-edited</td><td><span class="tq-badge tq-b">Hard Block</span></td></tr>
+        <tr><td class="qa-cat">Fluency Score</td><td>LLM-based fluency per language — catches literal output</td><td><span class="tq-badge tq-a">PQS Impact</span></td></tr>
+        <tr><td class="qa-cat">Cultural Flags</td><td>Symbols, colours, gestures offensive in target markets</td><td><span class="tq-badge tq-a">Auto Flag</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<div id="stats-band">
+  <div class="stats-row rv">
+    <div class="stat-cell">
+      <div class="stat-n">56<sub>B</sub></div>
+      <div class="stat-l">Market Size</div>
+      <div class="stat-d">Global language services market, growing at 11.4% CAGR to $96B by 2028</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n">45<sub>%</sub></div>
+      <div class="stat-l">TM Leverage</div>
+      <div class="stat-d">Semantic Neural TM surfaces 30–45% more matches than legacy string-level TM</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n">127<sub>%</sub></div>
+      <div class="stat-l">Net Revenue Retention</div>
+      <div class="stat-d">Customers expand as they scale to more languages — expansion exceeds churn by Year 2</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n">6×</div>
+      <div class="stat-l">Error Cost Reduction</div>
+      <div class="stat-d">Catching errors upstream with automated QA costs 6× less than rework at delivery</div>
+    </div>
+  </div>
+</div>
+
+<!-- VERTICALS -->
+<section id="verticals">
+  <div class="rv">
+    <div class="s-lbl">Industry Playbooks</div>
+    <h2 class="s-ttl">One platform.<br><em>Vertical depth.</em></h2>
+    <p class="s-body">Propellix is horizontal infrastructure, but we go to market with vertical-specific workflows, compliance tooling, and proof metrics for three beachhead industries.</p>
+  </div>
+  <div class="vert-grid rv d2">
+    <div class="vert-card">
+      <div class="vert-tag">Vertical 01</div>
+      <h3 class="vert-nm">B2B SaaS &amp; Tech</h3>
+      <p class="vert-dsc">Product strings, release cycles, developer i18n. GitHub/Figma connectors, XLIFF/JSON support, string length QA, and a developer API that plugs into any CI/CD pipeline. Go from English-only to 12 languages without adding headcount.</p>
+      <p class="vert-prf">✦ "Reduced localization lag from 3 weeks to 48 hours per release cycle"</p>
+    </div>
+    <div class="vert-card">
+      <div class="vert-tag">Vertical 02</div>
+      <h3 class="vert-nm">Life Sciences &amp; Pharma</h3>
+      <p class="vert-dsc">Regulatory compliance across IFU, labeling, and clinical trial documents in 40+ languages. ISO 17100 QA reports, forbidden-term hard blocks, full immutable audit trail, HIPAA BAA, and FDA/EMA-ready back-translation QA.</p>
+      <p class="vert-prf">✦ "Zero regulatory resubmissions due to translation error in 18 months"</p>
+    </div>
+    <div class="vert-card">
+      <div class="vert-tag">Vertical 03</div>
+      <h3 class="vert-nm">Legal &amp; Professional Services</h3>
+      <p class="vert-dsc">Contract translation with exact terminology and privilege protection. On-prem / private cloud TM, GGE approval workflows with attorney review integration, SSO/SAML, and full cross-jurisdiction term consistency enforcement.</p>
+      <p class="vert-prf">✦ "Reduced contract localization cost by 40% through TM leverage in Year 1"</p>
+    </div>
+  </div>
+
+  <div class="tech-strip rv d3">
+    <span class="tech-tag">SOC 2 Type II</span><span class="tech-tag">GDPR DPA</span>
+    <span class="tech-tag">ISO 17100</span><span class="tech-tag">HIPAA BAA</span>
+    <span class="tech-tag">SSO / SAML</span><span class="tech-tag">AES-256 at rest</span>
+    <span class="tech-tag">TLS 1.3</span><span class="tech-tag">Customer-managed KMS</span>
+    <span class="tech-tag">Audit Logs</span><span class="tech-tag">On-prem Option</span>
+  </div>
+</section>
+
+<hr class="orn orn-ink">
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="rv">
+    <div class="s-lbl">Pricing</div>
+    <h2 class="s-ttl">Transparent. Scalable.<br><em>No surprise invoices.</em></h2>
+    <p class="s-body">The only localization platform that shows you cost with TM leverage prediction before a project begins — not after it's invoiced.</p>
+  </div>
+  <div class="price-grid rv d2">
+    <!-- Starter -->
+    <div class="price-card">
+      <p class="p-tier">Starter</p>
+      <div class="p-amt"><sup>$</sup>890</div>
+      <p class="p-per">per month · billed annually</p>
+      <div class="p-div"></div>
+      <ul class="p-feats">
+        <li><span class="chk">◈</span> Up to 5 languages</li>
+        <li><span class="chk">◈</span> 500K words / month TM storage</li>
+        <li><span class="chk">◈</span> 2 glossaries</li>
+        <li><span class="chk">◈</span> Basic QA checks (formatting, terms, placeholders)</li>
+        <li><span class="chk">◈</span> 3 connectors</li>
+        <li><span class="chk">◈</span> 5 editor seats</li>
+        <li><span class="chk">◈</span> Standard MT (shared engine)</li>
+        <li><span class="chk">◈</span> Email support</li>
+      </ul>
+      <a href="#cta-s" class="p-btn p-btn-g">Get Started</a>
+    </div>
+
+    <!-- Growth -->
+    <div class="price-card feat">
+      <p class="p-tier">Growth</p>
+      <div class="p-amt"><sup>$</sup>2,900</div>
+      <p class="p-per">per month · billed annually</p>
+      <div class="p-div"></div>
+      <ul class="p-feats">
+        <li><span class="chk">◈</span> Up to 20 languages</li>
+        <li><span class="chk">◈</span> 5M words TM storage</li>
+        <li><span class="chk">◈</span> Unlimited glossaries + approval workflows</li>
+        <li><span class="chk">◈</span> Full MQE suite + PQS scoring</li>
+        <li><span class="chk">◈</span> 10 connectors</li>
+        <li><span class="chk">◈</span> 15 seats</li>
+        <li><span class="chk">◈</span> Custom MT fine-tuning (1 domain)</li>
+        <li><span class="chk">◈</span> Vendor portal + LSP marketplace access</li>
+        <li><span class="chk">◈</span> Priority support + CSM</li>
+      </ul>
+      <a href="#cta-s" class="p-btn p-btn-s">Start Free Trial</a>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="price-card">
+      <p class="p-tier">Enterprise</p>
+      <div class="p-amt" style="font-size:2rem;padding-top:.4rem">Custom</div>
+      <p class="p-per">$8K – $40K+ per month</p>
+      <div class="p-div"></div>
+      <ul class="p-feats">
+        <li><span class="chk">◈</span> Unlimited languages</li>
+        <li><span class="chk">◈</span> Private cloud or on-prem TM</li>
+        <li><span class="chk">◈</span> Unlimited MT domain fine-tuning</li>
+        <li><span class="chk">◈</span> SSO/SAML, SOC 2 Type II, GDPR DPA</li>
+        <li><span class="chk">◈</span> SLA: 99.9% uptime, dedicated support</li>
+        <li><span class="chk">◈</span> Custom connector development</li>
+        <li><span class="chk">◈</span> Professional services hours included</li>
+        <li><span class="chk">◈</span> Full audit trail (FDA/EMA ready)</li>
+      </ul>
+      <a href="#cta-s" class="p-btn p-btn-g">Talk to Sales</a>
+    </div>
+  </div>
+</section>
+
+<hr class="orn orn-ink2">
+
+<!-- FOUNDER -->
+<section id="founder">
+  <div>
+    <div class="rv">
+      <div class="s-lbl">The Builder</div>
+      <blockquote class="f-qt">
+        Language is the last frontier of global commerce. Every enterprise that wants to sell in every market has the same problem — and nobody has solved it at the infrastructure level. Propellix is that infrastructure.
+      </blockquote>
+      <p class="f-nm">Sai Vishwak</p>
+      <p class="f-role">Founder & CEO, Propellix</p>
+      <div class="f-div"></div>
+      <p style="font-size:.88rem;color:var(--muted);line-height:1.78;max-width:440px">Building the AI-native localization layer that enterprises have needed for two decades — one that compounds, learns, and makes every successive project cheaper, faster, and higher quality than the last.</p>
+      <div class="f-badges">
+        <span class="f-badge-t">AI · ML</span>
+        <span class="f-badge-t">Enterprise SaaS</span>
+        <span class="f-badge-t">Localization Tech</span>
+        <span class="f-badge-t">B2B Infrastructure</span>
+      </div>
+    </div>
+  </div>
+  <div class="f-vis rv d2">
+    <div class="f-shadow"></div>
+    <div class="f-frame">
+      <span class="f-inits">SV</span>
+      <canvas id="f-canvas"></canvas>
+    </div>
+    <div class="f-corner f-tl"></div>
+    <div class="f-corner f-tr"></div>
+    <div class="f-corner f-bl"></div>
+    <div class="f-corner f-br"></div>
+    <div class="f-name-card">Sai Vishwak · Founder</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta-s">
+  <div class="rv">
+    <h2 class="cta-ttl">Ready to make localization<br><em>a competitive advantage?</em></h2>
+    <p class="cta-sub">Join the enterprises already using Propellix to ship in 50+ languages without the chaos. Free trial, no card required.</p>
+    <div class="cta-btns">
+      <a href="#" class="btn-gold">Start Free Trial</a>
+      <a href="#" class="btn-ghost">Schedule a Demo →</a>
+    </div>
+    <p class="cta-note">No credit card required · 14-day free trial · Cancel anytime</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-grid">
+    <div>
+      <div class="ft-brand">Propell<span>ix</span></div>
+      <p class="ft-tag">The AI-native platform for enterprise translation memory, glossary governance, and multilingual QA at scale. Founded by Sai Vishwak.</p>
+      <div class="tech-strip" style="margin-top:1rem">
+        <span class="tech-tag">SOC 2</span>
+        <span class="tech-tag">ISO 17100</span>
+        <span class="tech-tag">GDPR</span>
+        <span class="tech-tag">HIPAA</span>
+      </div>
+    </div>
+    <div>
+      <p class="ft-col-lbl">Product</p>
+      <ul class="ft-links">
+        <li><a href="#features">Neural TM</a></li>
+        <li><a href="#features">Glossary Engine</a></li>
+        <li><a href="#features">QA Engine</a></li>
+        <li><a href="#features">Workflow Orchestrator</a></li>
+        <li><a href="#features">AI Copilot</a></li>
+        <li><a href="#features">LSP Marketplace</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="ft-col-lbl">Industries</p>
+      <ul class="ft-links">
+        <li><a href="#verticals">B2B SaaS</a></li>
+        <li><a href="#verticals">Life Sciences</a></li>
+        <li><a href="#verticals">Legal Services</a></li>
+        <li><a href="#verticals">E-commerce</a></li>
+        <li><a href="#verticals">Financial Services</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="ft-col-lbl">Company</p>
+      <ul class="ft-links">
+        <li><a href="#founder">About</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#">Docs</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <p class="ft-copy">© 2025 Propellix · Founded by <em>Sai Vishwak</em> · All rights reserved.</p>
+    <p class="ft-mono">v1.0 · Enterprise Localization Intelligence</p>
+  </div>
+</footer>
+
+<!-- ════════════ JS ════════════ -->
+<script>
+/* CURSOR */
+const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cdot.style.left=mx+'px';cdot.style.top=my+'px'});
+(function tickRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cring.style.left=Math.round(rx)+'px';cring.style.top=Math.round(ry)+'px';requestAnimationFrame(tickRing)})();
+document.querySelectorAll('a,button,.feat-card,.vert-card,.prob-card,.price-card,.pipe-step').forEach(el=>{el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'))});
+
+/* NAV */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('solid',window.scrollY>60),{passive:true});
+
+/* MARQUEE DUPLICATE */
+const ms=document.getElementById('mq-src'),mt=ms.parentElement;
+mt.appendChild(ms.cloneNode(true));
+
+/* WORLD SCRIPTS floating bg */
+const scripts=['文','字','語','Α','β','Ω','ش','ع','ك','כ','ב','ל','ह','म','ग','ア','イ','ウ','ス','テ','가','나','다','라','Д','Ж','Ш','ড','প','বা','ந','ப','ம','ق','م','ه','ف','Ä','Ö','Ü','ø','æ','ñ','ç','ß','ξ','φ','ψ','Ի','Կ','Ն'];
+const sb=document.getElementById('scripts-bg');
+for(let i=0;i<45;i++){
+  const d=document.createElement('span');
+  d.className='sc';
+  const op=(.04+Math.random()*.09).toFixed(3);
+  const rot=(Math.random()*360).toFixed(0);
+  const sz=(1.1+Math.random()*3.5).toFixed(1);
+  d.style.cssText=`left:${(Math.random()*100).toFixed(1)}%;bottom:${(-15-Math.random()*20).toFixed(0)}%;font-size:${sz}rem;color:var(--gold);--op:${op};--rot:${rot}deg;animation-duration:${(14+Math.random()*22).toFixed(1)}s;animation-delay:${(Math.random()*18).toFixed(1)}s`;
+  d.textContent=scripts[Math.floor(Math.random()*scripts.length)];
+  sb.appendChild(d);
+}
+
+/* HERO CANVAS NETWORK */
+(function(){
+  const cv=document.getElementById('net-canvas'),ctx=cv.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;pts=[];for(let i=0;i<60;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35})}
+  resize();window.addEventListener('resize',resize,{passive:true});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<155){
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(200,164,74,${(.22*(1-d/155)).toFixed(3)})`;ctx.lineWidth=.5;ctx.stroke();
+      }
+    }
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,1.4,0,Math.PI*2);ctx.fillStyle='rgba(34,212,212,0.55)';ctx.fill()});
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* LANG TICKER */
+const langs=[
+  'Enterprise Localization Intelligence',
+  '企業向けローカライゼーション',
+  'Localisation d\'entreprise',
+  'Unternehmens-Lokalisierung',
+  'Локализация предприятий',
+  'Localización Empresarial',
+  'ترجمة ذكاء اصطناعي',
+  '엔터프라이즈 현지화',
+  'Localizzazione Aziendale',
+  'Enterprise Lokalisering',
+];
+let li=0;const lt=document.getElementById('lang-t');
+setInterval(()=>{lt.classList.add('fade');setTimeout(()=>{li=(li+1)%langs.length;lt.textContent=langs[li];lt.classList.remove('fade')},340)},2800);
+
+/* FOUNDER CANVAS — floating language glyphs with orbiting ring */
+(function(){
+  const cv=document.getElementById('f-canvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const glyphs=['文','語','Α','ش','ה','ह','ア','가','Д','ந','ق','Ä','ξ','Ի','字','ع','β','ב','म','イ','나','Ж','ப','ø','φ'];
+  let W,H,angle=0;
+  const particles=[];
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight}
+  resize();window.addEventListener('resize',resize,{passive:true});
+  for(let i=0;i<22;i++)particles.push({glyph:glyphs[i%glyphs.length],x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0008,vy:(Math.random()-.5)*.0008,size:.8+Math.random()*1.4,op:.05+Math.random()*.12});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    angle+=.003;
+    // orbit ring
+    const cx=W/2,cy=H/2,r=Math.min(W,H)*0.36;
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle='rgba(200,164,74,0.07)';ctx.lineWidth=.8;ctx.stroke();
+    // orbit dot
+    ctx.beginPath();ctx.arc(cx+Math.cos(angle)*r,cy+Math.sin(angle)*r,3,0,Math.PI*2);
+    ctx.fillStyle='rgba(200,164,74,0.5)';ctx.fill();
+    ctx.beginPath();ctx.arc(cx+Math.cos(angle+Math.PI)*r,cy+Math.sin(angle+Math.PI)*r,2,0,Math.PI*2);
+    ctx.fillStyle='rgba(34,212,212,0.4)';ctx.fill();
+    // floating glyphs
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=1;if(p.x>1)p.x=0;if(p.y<0)p.y=1;if(p.y>1)p.y=0;
+      ctx.font=`300 ${p.size*22}px 'Cormorant Garamond',serif`;
+      ctx.fillStyle=`rgba(200,164,74,${p.op})`;
+      ctx.fillText(p.glyph,p.x*W,p.y*H);
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* SCROLL REVEAL */
+const rvObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
+
+/* COUNTER ANIMATION */
+function countUp(el){
+  const target=parseFloat(el.dataset.t);
+  const suffix=el.dataset.s||'';
+  const isFloat=target%1!==0;
+  const dur=1800,start=performance.now();
+  (function tick(now){
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,4);
+    const val=target*ease;
+    el.textContent=(isFloat?val.toFixed(1):Math.round(val))+suffix;
+    if(p<1)requestAnimationFrame(tick);
+  })(start);
+}
+const cObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('[data-t]').forEach(countUp);cObs.unobserve(e.target)}})},{threshold:.3});
+document.querySelectorAll('.prob-grid').forEach(el=>cObs.observe(el));
+</script>
+</body>
+</html>
